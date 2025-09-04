@@ -9,6 +9,6 @@ if (!url || !serviceRole) {
 }
 
 // This client uses the service role - DO NOT import it into client-side code.
-export const supabaseServer = createClient(url, serviceRole, {
+export const supabaseServerClient = createClient(url, serviceRole, {
   auth: { persistSession: false },
 });
