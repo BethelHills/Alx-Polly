@@ -1,6 +1,6 @@
 // app/api/polls/route.ts (server)
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServerClient";
+import { supabaseServerClient } from "@/lib/supabaseServerClient";
 import { createPollSchema } from "@/lib/schemas/poll";
 
 export async function POST(req: Request) {
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     // verify user from token
-    const { data: userRes, error: userErr } = await supabaseServer.auth.getUser(token);
+    const { data: userRes, error: userErr } = await supabaseServerClient.auth.getUser(token);
     if (userErr || !userRes?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const { title, options } = parse.data;
 
     // insert poll
-    const { data, error } = await supabaseServer.from("polls").insert({
+    const { data, error } = await supabaseServerClient.from("polls").insert({
       title,
       options,
       owner: user.id,
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     }
 
     // create audit log
-    await supabaseServer.from("audit_logs").insert({
+    await supabaseServerClient.from("audit_logs").insert({
       user_id: user.id,
       action: "create_poll",
       target_id: data?.[0]?.id ?? null,

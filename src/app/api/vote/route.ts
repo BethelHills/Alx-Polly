@@ -1,6 +1,6 @@
 // app/api/vote/route.ts
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServerClient";
+import { supabaseServerClientClient } from "@/lib/supabaseServerClientClient";
 import { z } from "zod";
 
 const voteSchema = z.object({
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const token = req.headers.get("authorization")?.replace("Bearer ", "");
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { data: userRes, error: userErr } = await supabaseServer.auth.getUser(token);
+    const { data: userRes, error: userErr } = await supabaseServerClient.auth.getUser(token);
     if (userErr || !userRes?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const user = userRes.user;
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     const { poll_id, option } = parsed.data;
 
-    const { data, error } = await supabaseServer
+    const { data, error } = await supabaseServerClient
       .from("votes")
       .insert([{ poll_id, option, user_id: user.id }])
       .select();
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to submit vote" }, { status: 500 });
     }
 
-    await supabaseServer.from("audit_logs").insert({
+    await supabaseServerClient.from("audit_logs").insert({
       user_id: user.id,
       action: "vote",
       target_id: poll_id,
