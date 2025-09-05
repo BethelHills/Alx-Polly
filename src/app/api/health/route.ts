@@ -58,7 +58,7 @@ export async function GET() {
     const startTime = Date.now()
     
     // Check database connectivity
-    const { data, error } = await supabaseServerClient
+    const { error } = await supabaseServerClient
       .from('polls')
       .select('count')
       .limit(1)

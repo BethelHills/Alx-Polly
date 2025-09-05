@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
     if (error) {
       // Postgres unique violation code 23505 -> user already voted
-      if ((error as any).code === "23505" || /(duplicate|unique)/i.test(String((error as any).message || ""))) {
+      if ((error as { code?: string; message?: string }).code === "23505" || /(duplicate|unique)/i.test(String((error as { code?: string; message?: string }).message || ""))) {
         return NextResponse.json({ error: "User already voted" }, { status: 409 });
       }
       console.error("vote insert error:", error);
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
       details: { option }
     });
     return NextResponse.json({ success: true, data }, { status: 201 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("vote POST error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

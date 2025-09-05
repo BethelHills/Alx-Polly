@@ -5,11 +5,11 @@ export interface ErrorResponse {
   success: false
   message: string
   code?: string
-  details?: any
+  details?: unknown
 }
 
 // Success response interface
-export interface SuccessResponse<T = any> {
+export interface SuccessResponse<T = unknown> {
   success: true
   data?: T
   message?: string
@@ -38,7 +38,7 @@ export function handleNotFoundError(resource: string = "Resource"): NextResponse
   )
 }
 
-export function handleVoteError(error: any): NextResponse<ErrorResponse> {
+export function handleVoteError(error: { code?: string; message?: string }): NextResponse<ErrorResponse> {
   console.error('Vote error:', error)
   
   // Handle specific database errors

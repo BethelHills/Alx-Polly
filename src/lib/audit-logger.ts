@@ -8,7 +8,7 @@ export interface AuditLogEntry {
   target_id?: string
   ip_address?: string
   user_agent?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 // Audit log actions
@@ -64,8 +64,7 @@ export class AuditLogger {
 
   // Extract request information
   private extractRequestInfo(request: NextRequest) {
-    const ip = request.ip || 
-               request.headers.get('x-forwarded-for') || 
+    const ip = request.headers.get('x-forwarded-for') || 
                request.headers.get('x-real-ip') || 
                'unknown'
     
