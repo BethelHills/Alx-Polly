@@ -1,0 +1,61 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit security checks..."
+
+# Check for exposed secrets
+echo "🔐 Checking for exposed secrets..."
+
+# Check for hardcoded service role keys
+if git diff --cached --name-only | xargs grep -l "SUPABASE_SERVICE_ROLE_KEY.*=.*sk-" 2>/dev/null; then
+  echo "❌ Error: Hardcoded service role key found in staged files!"
+  echo "   Remove any hardcoded SUPABASE_SERVICE_ROLE_KEY values."
+  exit 1
+fi
+
+# Check for hardcoded anon keys (less critical but still bad practice)
+if git diff --cached --name-only | xargs grep -l "NEXT_PUBLIC_SUPABASE_ANON_KEY.*=.*eyJ" 2>/dev/null; then
+  echo "❌ Error: Hardcoded anon key found in staged files!"
+  echo "   Remove any hardcoded NEXT_PUBLIC_SUPABASE_ANON_KEY values."
+  exit 1
+fi
+
+# Check for other common secret patterns
+if git diff --cached --name-only | xargs grep -l "sk-[a-zA-Z0-9]" 2>/dev/null; then
+  echo "❌ Error: Potential secret key pattern found!"
+  echo "   Check for any hardcoded secret keys."
+  exit 1
+fi
+
+# Check for API keys
+if git diff --cached --name-only | xargs grep -l "api[_-]?key.*=.*['\"][a-zA-Z0-9]" 2>/dev/null; then
+  echo "❌ Error: Potential API key found!"
+  echo "   Check for any hardcoded API keys."
+  exit 1
+fi
+
+# Check for passwords
+if git diff --cached --name-only | xargs grep -l "password.*=.*['\"][^'\"]" 2>/dev/null; then
+  echo "❌ Error: Potential password found!"
+  echo "   Check for any hardcoded passwords."
+  exit 1
+fi
+
+# Check for .env files being committed
+if git diff --cached --name-only | grep -E "\.env$|\.env\." | grep -v "\.env\.example"; then
+  echo "❌ Error: .env file detected in staged files!"
+  echo "   .env files should not be committed to the repository."
+  exit 1
+fi
+
+echo "✅ No exposed secrets found."
+
+# Run linting
+echo "🔧 Running ESLint..."
+npm run lint
+
+# Run tests
+echo "🧪 Running tests..."
+npm test -- --passWithNoTests
+
+echo "✅ All pre-commit checks passed!"

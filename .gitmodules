@@ -1,0 +1,3 @@
+[submodule "alx-polling-app/alx-polly"]
+	path = alx-polling-app/alx-polly
+	url = https://github.com/BethelHills/Alx-Polly.git
