@@ -6,7 +6,7 @@ const createDOMPurify = () => {
   if (typeof window === 'undefined') {
     // Server-side: return a mock DOMPurify that strips HTML tags
     return {
-      sanitize: (html: string, _config?: unknown) => html.replace(/<[^>]*>/g, ''), // Strip HTML tags
+      sanitize: (html: string) => html.replace(/<[^>]*>/g, ''), // Strip HTML tags
       version: 'server-side'
     }
   }

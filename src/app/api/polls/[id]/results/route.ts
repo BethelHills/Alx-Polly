@@ -52,9 +52,9 @@ export async function GET(
     }
 
     // Calculate vote statistics
-    const totalVotes = poll.poll_options.reduce((sum: number, option: any) => sum + option.votes.length, 0)
+    const totalVotes = poll.poll_options.reduce((sum: number, option: { votes: unknown[] }) => sum + option.votes.length, 0)
     
-    const optionsWithStats = poll.poll_options.map((option: any) => ({
+    const optionsWithStats = poll.poll_options.map((option: { id: string; text: string; votes: unknown[] }) => ({
       id: option.id,
       text: option.text,
       vote_count: option.votes.length,
@@ -62,7 +62,7 @@ export async function GET(
     }))
 
     // Sort options by vote count (descending)
-    optionsWithStats.sort((a: any, b: any) => b.vote_count - a.vote_count)
+    optionsWithStats.sort((a: { vote_count: number }, b: { vote_count: number }) => b.vote_count - a.vote_count)
 
     return NextResponse.json({
       success: true,

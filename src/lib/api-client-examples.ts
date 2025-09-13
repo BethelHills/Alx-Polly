@@ -44,15 +44,16 @@ export async function handleVotingWorkflow(pollId: string, optionId: string) {
       return { success: true, voteResult, results };
     }
     
-  } catch (error: any) {
-    console.error('Voting workflow failed:', error);
+    } catch (error: unknown) {
+      console.error('Voting workflow failed:', error);
     
     // Handle specific error types
-    if (error.message?.includes('already voted')) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (errorMessage.includes('already voted')) {
       return { success: false, message: 'You have already voted on this poll' };
-    } else if (error.message?.includes('Authentication')) {
+    } else if (errorMessage.includes('Authentication')) {
       return { success: false, message: 'Please log in to vote' };
-    } else if (error.message?.includes('not found')) {
+    } else if (errorMessage.includes('not found')) {
       return { success: false, message: 'Poll not found' };
     } else {
       return { success: false, message: 'An error occurred while voting' };
@@ -82,12 +83,13 @@ export function createPollResultsComponent(pollId: string) {
             error: results.message || 'Failed to load results'
           };
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'An error occurred';
         return {
           poll: null,
           options: [],
           loading: false,
-          error: error.message || 'An error occurred'
+          error: errorMessage
         };
       }
     }
@@ -103,8 +105,9 @@ export async function batchVoteCheck(pollIds: string[]) {
       try {
         const hasVoted = await hasUserVoted(pollId);
         return { pollId, hasVoted, error: null };
-      } catch (error: any) {
-        return { pollId, hasVoted: false, error: error.message };
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return { pollId, hasVoted: false, error: errorMessage };
       }
     })
   );
@@ -113,11 +116,12 @@ export async function batchVoteCheck(pollIds: string[]) {
     if (result.status === 'fulfilled') {
       return result.value;
     } else {
-      return {
-        pollId: pollIds[index],
-        hasVoted: false,
-        error: result.reason?.message || 'Unknown error'
-      };
+        const errorMessage = result.reason instanceof Error ? result.reason.message : 'Unknown error';
+        return {
+          pollId: pollIds[index],
+          hasVoted: false,
+          error: errorMessage
+        };
     }
   });
   
@@ -138,13 +142,14 @@ export class PollApiError extends Error {
   }
 }
 
-export function handleApiError(error: any): PollApiError {
+export function handleApiError(error: unknown): PollApiError {
   if (error && typeof error === 'object' && 'success' in error) {
     // API error response
+    const apiError = error as { message?: string; code?: string; statusCode?: number };
     return new PollApiError(
-      error.message || 'API request failed',
-      error.code,
-      error.statusCode
+      apiError.message || 'API request failed',
+      apiError.code,
+      apiError.statusCode
     );
   } else if (error instanceof Error) {
     // Standard error
@@ -162,7 +167,7 @@ export interface PollVotingState {
   isVoting: boolean;
   hasVoted: boolean;
   error: string | null;
-  results: any | null;
+  results: PollResultsResponse['data'] | null;
 }
 
 export class PollVotingManager {
@@ -209,8 +214,9 @@ export class PollVotingManager {
         this.state.isVoting = false;
         return false;
       }
-    } catch (error: any) {
-      this.state.error = error.message;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      this.state.error = errorMessage;
       this.state.isVoting = false;
       return false;
     }

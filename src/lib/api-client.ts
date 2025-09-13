@@ -92,9 +92,9 @@ async function makeAuthenticatedRequest(endpoint: string, options: RequestInit =
 /**
  * Handle API response and extract JSON data
  * @param {Response} response - The fetch response
- * @returns {Promise<any>} The parsed JSON data
+ * @returns {Promise<unknown>} The parsed JSON data
  */
-async function handleApiResponse(response: Response): Promise<any> {
+async function handleApiResponse(response: Response): Promise<unknown> {
   const data = await response.json();
   
   if (!response.ok) {
@@ -157,7 +157,7 @@ export async function castVote(pollId: string, optionId: string): Promise<VoteRe
     const data = await handleApiResponse(response);
     return data as VoteResponse;
 
-  } catch (error) {
+  } catch (error: unknown) {
     // Re-throw API errors as-is
     if (error && typeof error === 'object' && 'success' in error) {
       throw error;
@@ -213,7 +213,7 @@ export async function getPollResults(pollId: string): Promise<PollResultsRespons
     const data = await handleApiResponse(response);
     return data as PollResultsResponse;
 
-  } catch (error) {
+  } catch (error: unknown) {
     // Re-throw API errors as-is
     if (error && typeof error === 'object' && 'success' in error) {
       throw error;
@@ -243,13 +243,14 @@ export async function getPollResults(pollId: string): Promise<PollResultsRespons
  * }
  * ```
  */
-export async function hasUserVoted(pollId: string): Promise<boolean> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function hasUserVoted(_pollId: string): Promise<boolean> {
   try {
     // This would require implementing a separate endpoint like /api/polls/[id]/vote-status
     // For now, we'll return false as a placeholder
     console.warn('hasUserVoted: This function requires a separate API endpoint to be implemented');
     return false;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error checking vote status:', error);
     return false;
   }
