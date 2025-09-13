@@ -26,11 +26,7 @@ const pollOptionSchema = z.string()
   )
   .transform((val) => {
     // Sanitize the string using DOMPurify
-    return String(domPurify.sanitize(val, {
-      ALLOWED_TAGS: [],
-      ALLOWED_ATTR: [],
-      KEEP_CONTENT: true
-    })).trim()
+    return String(domPurify.sanitize(val)).trim()
   })
 
 // Poll creation schema with comprehensive validation and sanitization
@@ -44,11 +40,7 @@ export const createPollSchema = z.object({
     )
     .transform((val) => {
       // Sanitize the string using DOMPurify
-      return String(domPurify.sanitize(val, {
-        ALLOWED_TAGS: [],
-        ALLOWED_ATTR: [],
-        KEEP_CONTENT: true
-      })).trim()
+      return String(domPurify.sanitize(val)).trim()
     }),
 
   description: z.string()
@@ -58,11 +50,7 @@ export const createPollSchema = z.object({
     .transform((val) => {
       if (!val) return ''
       // Sanitize the string using DOMPurify
-      return String(domPurify.sanitize(val, {
-        ALLOWED_TAGS: [],
-        ALLOWED_ATTR: [],
-        KEEP_CONTENT: true
-      })).trim()
+      return String(domPurify.sanitize(val)).trim()
     }),
 
   options: z.array(pollOptionSchema)

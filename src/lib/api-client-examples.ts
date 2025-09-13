@@ -5,7 +5,7 @@
  * in real-world scenarios.
  */
 
-import { castVote, getPollResults, hasUserVoted } from './api-client';
+import { castVote, getPollResults, hasUserVoted, PollResultsResponse } from './api-client';
 
 // Example 1: Complete voting workflow
 export async function handleVotingWorkflow(pollId: string, optionId: string) {
