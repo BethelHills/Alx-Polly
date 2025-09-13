@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ data }, { status: 201 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("polls POST error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
